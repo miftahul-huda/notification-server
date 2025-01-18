@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka 
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  notification-producer-server:
+    depends_on: 
+      - kafka
+    build: 
+      context: .
+      dockerfile: notification-producer-server-dockerfile
+    ports: 
+      - "1421:1421"
+    environment:
+      kafkaClientId: app-notification-client
+      kafkaBrokerAddress: kafka:9092
+      kafkaTopic: app-notification
+      nodeKafkaProducerPort: 1421
+      nodeKafkaConsumerPort: 1422
+  notification-consumer-server:
+    depends_on: 
+      - kafka
+    build: 
+      context: .
+      dockerfile: notification-consumer-server-dockerfile
+    ports: 
+      - "1422:1422"
+    environment:
+      kafkaClientId: app-notification-client
+      kafkaBrokerAddress: kafka:9092
+      kafkaTopic: app-notification
+      nodeKafkaProducerPort: 1421
+      nodeKafkaConsumerPort: 1422

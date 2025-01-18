@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>WebSocket Example</title>
+</head>
+<body>
+  <div id="messages"></div>
+
+  <script>
+    var websocket = new WebSocket("ws://34.55.218.217:1422"); // Replace with your WebSocket server address
+
+    websocket.onopen = function(event) {
+        console.log("WebSocket connection opened");
+        let info = {
+            action: "register",
+            userID: "user.tester",
+            payload: {}
+        };
+        console.log("Registering client")
+        console.log(info)
+        websocket.send(JSON.stringify(info))
+    };
+
+    websocket.onmessage = function(event) {
+        var message = event.data;
+        var messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += "<p>" + message + "</p>"; 
+        message = JSON.parse(message)
+        if(message.type == "notification")
+        {
+            alert(message.message)
+        }
+    };
+
+    websocket.onclose = function(event) {
+        console.log("WebSocket connection closed");
+    };
+
+    websocket.onerror = function(event) {
+        console.error("WebSocket error:", event);
+    };
+
+    function sendMessage() {
+        var messageInput = document.getElementById("messageInput");
+        var message = messageInput.value;
+        websocket.send(message);
+        messageInput.value = "";
+    }
+  </script>
+</body>
+</html>
